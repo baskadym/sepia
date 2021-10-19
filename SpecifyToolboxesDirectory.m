@@ -13,10 +13,10 @@
 % Date modified: 18 July 2020 (v0.8.0)
 %
 %% Specify the directories of the toolbox here
-MEDI_HOME       = '/path/to/MEDI/Toolboxes/';
-STISuite_HOME   = '/path/to/STI/Suite/';
-FANSI_HOME      = '/path/to/FANSI/Toolboxes/';
-SEGUE_HOME      = '/path/to/SEGUE/Toolboxes/';
+MEDI_HOME = '~/Documents/MATLAB/matlab_scripts/MEDI_toolbox/';
+STISuite_HOME = '~/Documents/MATLAB/matlab_scripts/STISuite_V3.0/STISuite_V3.0/';
+FANSI_HOME = '~/Documents/MATLAB/matlab_scripts/carlos_milovic/FANSI-toolbox-master';
+SEGUE_HOME = '~/Documents/MATLAB/matlab_scripts/anita_karsa/SEGUE_pfiles/SEGUE/';
 
 %% if you have any missing toolbox, then specify it as empty array
 % MEDI_HOME      = [];
