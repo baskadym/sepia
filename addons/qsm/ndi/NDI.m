@@ -33,7 +33,7 @@
 % Kwok-shing Chan @ DCCN
 % k.chan@donders.ru.nl
 % Date created: 5 June 2019
-% Date modified:
+% Date modified: 29 September 2022 (v1.1.1) add gpu compatibility
 %
 %
 function chi = NDI(localField,mask,voxelSize,varargin)
@@ -57,12 +57,28 @@ if isempty(weight)
     weight = mask;
 end
 
+% 20220930 KC: the difference is minor weight vs weight^2
+weight = weight .^2;
+
 % create dipole kernel
 dipoleKernel = DipoleKernel(matrixSize,voxelSize,b0dir);
 
 % initialise susceptibilit map and gradient
 chi = zeros(matrixSize, 'like',localField);
 grad_prev = zeros(matrixSize, 'like',localField);
+
+try
+    % add gpu compatibility
+    weight          = gpuArray(weight);
+    dipoleKernel    = gpuArray(dipoleKernel);
+    chi             = gpuArray(chi);
+    localField      = gpuArray(localField);
+    grad_prev       = gpuArray(grad_prev);
+    mask            = gpuArray(mask);
+    isGPU           = true;
+catch
+    isGPU = false;
+end
 
 % case of one B0 direction
 tic
@@ -93,5 +109,8 @@ toc
 % masking output
 chi = chi .* mask;
 
+if isGPU
+    chi = gather(chi);
+end
 
 end

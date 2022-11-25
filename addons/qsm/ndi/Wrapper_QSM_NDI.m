@@ -18,7 +18,8 @@
 % Kwok-shing Chan @ DCCN
 % k.chan@donders.ru.nl
 % Date created: 8 March 2020
-% Date last modified:
+% Date modified: 16 August 2021
+% Date modified: 20 Feb 2022 (v1.0)
 %
 %
 function [chi] = Wrapper_QSM_NDI(localField,mask,matrixSize,voxelSize,algorParam, headerAndExtraData)
@@ -33,10 +34,10 @@ maxiter     = algorParam.qsm.maxiter;
 
 % get extra data such as magnitude/weights/B0 direction/TE/etc.
 headerAndExtraData = check_and_set_SEPIA_header_data(headerAndExtraData);
-b0dir = headerAndExtraData.b0dir;
-b0    = headerAndExtraData.b0;
-wmap  = headerAndExtraData.weights;
-magn  = headerAndExtraData.magn;
+b0dir = headerAndExtraData.sepia_header.B0_dir;
+b0    = headerAndExtraData.sepia_header.B0;
+wmap  = get_variable_from_headerAndExtraData(headerAndExtraData,'weights', matrixSize); %headerAndExtraData.weights;
+magn  = get_variable_from_headerAndExtraData(headerAndExtraData,'magnitude', matrixSize); %headerAndExtraData.magn;
 
 % add path
 sepia_addpath;
@@ -51,11 +52,25 @@ end
 if ~isempty(magn) && isempty(wmap)
     disp('The normalised RMS in time dimension of magnitude image will be used as the weighting map.');
     tmp     = sqrt(mean(magn.^2,4));
-    wmap    = (tmp./max(tmp(:))) .* (mask); 
+    % update 05 Oct 2022: avoid using maximum intensity which subject to
+    % more variation
+%     wmap    = (tmp./max(tmp(:))) .* (mask); 
+    wmap = (tmp./prctile(tmp(:),99)) .* mask;
+    wmap(wmap>1) = 1;
+    
+    clear tmp
 end
 % if nothing is loaded
-if ~isempty(magn) && isempty(wmap)
+if isempty(magn) && isempty(wmap)
     warning('Providing a weighing map or magnitude images can potentially improve the QSM map quality.');
+    wmap = mask;
+end
+
+% masking weights
+wmap = wmap.*mask;
+
+if ~isempty(magn)
+    clear magn
 end
 
 %% Display algorithm parameters

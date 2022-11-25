@@ -6,18 +6,20 @@
 
 **SEPIA** is a tool providing a graphical user interface to build data processing pipeline of quantitative susceptibility mapping (QSM) in Matlab.
 
-This GUI is built to access the following toolboxes:
-[MEDI](http://weill.cornell.edu/mri/pages/qsm.html), 
-[STI Suite](https://people.eecs.berkeley.edu/~chunlei.liu/software.html),
-[FANSI](https://gitlab.com/cmilovic/FANSI-toolbox),  
-[SEGUE](https://xip.uclb.com/i/software/SEGUE.html), and 
-[nonlinear dipole inversion (NDI)](https://github.com/polakd/NDI_Toolbox).
+The current GUI version is built to access the following toolboxes:
+- [MEDI (updated Jan 15, 2020)](http://weill.cornell.edu/mri/pages/qsm.html), 
+- [STI Suite (v3.0)](https://people.eecs.berkeley.edu/~chunlei.liu/software.html),
+- [FANSI (v3.0, released on 2021.10.15, i.e., commit b6ac1c9e)](https://gitlab.com/cmilovic/FANSI-toolbox/-/tree/b6ac1c9ea03380722ebe25a6dbef33fff4ea3700),  
+- [SEGUE](https://xip.uclb.com/i/software/SEGUE.html), and 
+- [nonlinear dipole inversion (NDI)](https://github.com/polakd/NDI_Toolbox),
+- [mritools (ROMEO/CLEARSWI) (v3.5.5)](https://github.com/korbinian90/CompileMRI.jl/releases) (2022-Oct-11: v3.5.6 also passed),
+- [MRI Susceptibility Calculation Methods, accessed 12 September 2019](https://xip.uclb.com/product/mri_qsm_tkd).
 
 SEPIA provides two key features for QSM processing:  
 1. mix-and-match methods from different toolboxes to build your own QSM processing pipeline,
 2. graphical user interface to easily adjust parameters of different algorithms.
 
-SEPIA is designed to provide a platform for easy access to different QSM processing methods in the field. To achieve this, most of the codes were written for data flow and algorithm parameter control. Through SEPIA, I hope researchers who are not expert in QSM will also be able to use QSM for their research.
+SEPIA is designed to provide a platform for easy access to different QSM processing methods in the field. To achieve this, most of the codes were written for data flow and algorithm parameter control. Through SEPIA, we hope researchers who are not expert in QSM will also be able to use QSM for their research.
 
 **For better readability, the documentation of SEPIA has moved to https://sepia-documentation.readthedocs.io/.**  
 
@@ -30,19 +32,54 @@ If you use SEPIA in your research, please cite the following article:
 
 As well as any related papers in your processing pipeline. 
 
-If you have any question or you would like to provide suggestion to improve this toolbox/report bug(s) please raise an issue in the [github page](https://github.com/kschan0214/sepia/issues).
+If you encounter a bug in SEPIA, please report to [github page](https://github.com/kschan0214/sepia/issues). 
+
+If you have a more general question regarding the usage of SEPIA and/or other QSM questions, please make use of [github page](https://github.com/kschan0214/sepia/discussions).
 
 
 ## Update notes  
 
-For full update log, please visit https://sepia-documentation.readthedocs.io/.
+For full update log, please visit https://sepia-documentation.readthedocs.io/en/latest/getting_started/Release-note.html.
 
-### Future release
-* Support FANSI v2.0
-* Support [iterative Tikhonov regularisation for QSM dipole inversion](https://xip.uclb.com/i/software/mri_qsm_tkd.html) 
-* Better compartibility with BIDS format data
+### 1.2 (current master)
+* Support several deep learning based methods (BFRnet, xQSM, QSMnet+ and LP-CNN) on Linux
+* Support atlas-based subcortical structure segmentation (CIT168 Reinforcement learning atlas, MuSus-100 and AHEAD) on Linux and Mac
+* Integrate R2* mapping toolbox into SEPIA
+* New function to further refine brain mask by thresholding high R2* voxels on brain edges
+* When magnitude image is used for NDI, the image will be normalised by the intensity of the 99th percentile of the masked voxels instead of the maximum to improve robustness
 
-### 0.8.1.1 (current master)
+Please visit the documentation website for more info regarding the newly supported methods and functions.
+
+### 1.1.1 (current a7680bb)
+* ROMEO is now packaged together with CLEAR-SWI. To accompany these changes, ROMEO_HOME is renamed to MRITOOLS_HOME
+* Supported CLEAR-SWI
+* Fixed bug: bipolar readout correction implementation in full processing pipeline is different from the one in Phase unwrapping standalone 
+* Added GPU compatibility of NDI
+* Fixed bug for NDI (M^2 is now used instead of M as weights)
+* Added functionality to remove brain mask edge **before** backfround field removal step.
+
+### 1.1.0 (commit 9ffe0e2)
+* New backend architecture for SWI/SMWI algorithms which supports add-on feature like QSM processing 
+* Better compatibility with ROMEO
+* New implementation of bipolar readout phase offset correction (from which no phase unwrapping is required)
+* Provide bipolar readout phase offset estimation as an output
+* New implementation on incorporating mono-exponential fitting residual to weighting map generation
+* Experimental support to export GE real|imaginary image to phase image
+
+### 1.0.1 (commit 3a2b387)
+* Fixed bug when phase NIfTI is in wrapped range with non-unity rescale slope (e.g. from Philips' scanners)
+* Updated function performing phase conversion from arbitary DICOM values to radian (could result in minor numerical differences compared to previous versions if the input phase NIfTI not in radian)
+* Several other minor bugs fixed
+
+### 1.0.0 (commit 8e35aee)
+* Support ROMEO as total field computation and phase unwrapping method
+* Support MRI susceptibility calculation methods for QSM dipole field inversion
+* Support FANSI v3.0 (note that the algorithm parameters are adapted for this version)
+* Improve BIDS compartibility with SEPIA
+* Update output filenames in accordance with BIDS format 
+* Improve the comparability of weighting maps across different datasets and methods
+
+### 0.8.1.1 (commit 52dd20b)
 * Fixed bug when using single-echo dataset
 * Fixed bug when input phase data in unit of radian with single datatype
 

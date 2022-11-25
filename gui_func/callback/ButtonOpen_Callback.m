@@ -23,7 +23,7 @@ switch field
             % set input edit field for display
             set(h.dataIO.edit.input,    'String',pathDir);
             % automatically set default output field
-            set(h.dataIO.edit.output,   'String',[pathDir filesep 'output' filesep prefix]);
+            set(h.dataIO.edit.output,   'String', fullfile(pathDir,'output',prefix) );
             
             % set input data fields empty
             set(h.dataIO.edit.inputData1,    'String',[]);
@@ -38,7 +38,7 @@ switch field
         pathDir = uigetdir;
 
         if pathDir ~= 0
-            set(h.dataIO.edit.output,'String',[pathDir filesep prefix]);
+            set(h.dataIO.edit.output,'String', fullfile(pathDir,prefix));
         end
         
     case 'inputdata1'
@@ -49,7 +49,9 @@ switch field
             % set input edit field for display
             set(h.dataIO.edit.inputData1,    'String',fullfile(pathDir,fileName));
             % automatically set default output field
-            set(h.dataIO.edit.output,   'String',[pathDir 'output' filesep prefix]);
+            if isempty(h.dataIO.edit.output.String)
+                set(h.dataIO.edit.output,   'String', fullfile(pathDir,'output',prefix));
+            end
             % set input directory field empty
             set(h.dataIO.edit.input,    'String',[]);
         end
@@ -61,7 +63,10 @@ switch field
         if pathDir ~= 0
             % set input edit field for display
             set(h.dataIO.edit.inputData2,    'String',fullfile(pathDir,fileName));
-            
+            % automatically set default output field
+            if isempty(h.dataIO.edit.output.String)
+                set(h.dataIO.edit.output,   'String', fullfile(pathDir,'output',prefix));
+            end
             % set input directory field empty
             set(h.dataIO.edit.input,    'String',[]);
 
@@ -82,7 +87,7 @@ switch field
         
     case 'header'
         % only read NIfTI file for mask
-        [fileName,pathDir] = uigetfile({'*.mat','QSM hub header file (*.mat)'},'Select a header file');
+        [fileName,pathDir] = uigetfile({'*.mat','SEPIA header file (*.mat)'},'Select a header file');
 
         if pathDir ~= 0
             % set input edit field for display

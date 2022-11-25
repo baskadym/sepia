@@ -4,7 +4,8 @@ magn = abs(s_cplx);
 phase = angle(s_cplx);
 
 % estimated T1w signal S0
-s0 = s_cplx(:,:,:,1).*exp(r2s*te(1));
+% s0 = s_cplx(:,:,:,1).*exp(r2s*te(1));
+s0 = magn(:,:,:,1).*exp(r2s*te(1)); % bug fix 20220920
 
 % compute simulated signal
 shat = zeros(size(magn));
@@ -13,10 +14,12 @@ for kt=1:length(te)
 end
 
 % simulated signal, get rid of the initial phase term
-shat = bsxfun(@times,shat,conj(shat(:,:,:,1)));
+% shat = bsxfun(@times,shat,conj(shat(:,:,:,1)));
+shat = bsxfun(@times,shat,conj(exp(1i*angle(shat(:,:,:,1)))));
 
 % measurement, get rid of the initial phase term
-s = bsxfun(@times,magn.*exp(1i*phase),conj(magn(:,:,:,1).*exp(1i*phase(:,:,:,1))));
+% s = bsxfun(@times,magn.*exp(1i*phase),conj(magn(:,:,:,1).*exp(1i*phase(:,:,:,1))));
+s = bsxfun(@times,magn.*exp(1i*phase),conj(exp(1i*phase(:,:,:,1))));
 
 %% compute relative residual
 % this formulation emphasises the difference of each echo

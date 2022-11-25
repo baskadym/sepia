@@ -8,6 +8,7 @@
 % Output
 % --------------
 % bipolarCorr   : eddy current corrected data
+% FIT3D         : bipolar readout induced phase
 %
 % Description: correct the inconsistent phase between odd and even echoes
 % due to bipolar greadout
@@ -16,10 +17,11 @@
 % Modified by Kwok-Shing Chan
 % k.chan@donders.ru.nl
 % Date created: 13 April 2018
-% Date last modified: 5 June 2019
+% Date modified: 5 June 2019
+% Date modified: 12 September 2021
 %
 %
-function bipolarCorr = BipolarEddyCorrect(bipolarCplxME,mask,algorParam)
+function [bipolarCorr,FIT3D] = BipolarEddyCorrect(bipolarCplxME,mask,algorParam)
 
 sepia_universal_variables;
 
@@ -49,6 +51,9 @@ PhaseDiffEvens  = angle(mean(bipolarCplxME(:,:,:,4:2:end)./bipolarCplxME(:,:,:,2
 PhaseDiffOdds   = angle(mean(bipolarCplxME(:,:,:,3:2:end)./bipolarCplxME(:,:,:,1:2:end-2),4));
 PhaseDiffEvens(isnan(PhaseDiffEvens))=0;
 PhaseDiffOdds(isnan(PhaseDiffOdds))=0;
+
+PhaseDiff = angle(exp(1i * PhaseDiffEvens) + exp(1i * PhaseDiffOdds));
+
 % BipolarOddvsEven=mean(abs(bipolarCplxME(:,:,:,1:2:end)),4)-mean(abs(bipolarCplxME(:,:,:,2:2:end-1)),4);
 % this has no unwrapping done to it - but it is a good first estimate
 % meanEddycurrent = PhaseDiffEvensMinusOdds-0.25*(PhaseDiffEvens+PhaseDiffOdds);
@@ -59,13 +64,17 @@ te=1:dims(4);
 algorParam.unwrap.unit 	= 'radHz';
 algorParam.unwrap.echoCombMethod = methodEchoCombineName{1}; 
 
-headerAndExtraData.te   = te(4)-te(2);
-headerAndExtraData.magn	= double(mean(abs(bipolarCplxME(:,:,:,2:2:end-2)),4));
-[fieldMapEven,~] = estimateTotalField(double(PhaseDiffEvens),mask,dims(1:3),[1 1 1],algorParam,headerAndExtraData);
+% headerAndExtraData.sepia_header.TE	= te(4)-te(2);
+% headerAndExtraData.magnitude        = double(mean(abs(bipolarCplxME(:,:,:,2:2:end-2)),4));
+% [fieldMapEven,~] = estimateTotalField(double(PhaseDiffEvens),mask,dims(1:3),[1 1 1],algorParam,headerAndExtraData);
+% 
+% headerAndExtraData.sepia_header.TE 	= te(3)-te(1);
+% headerAndExtraData.magnitude        = double(mean(abs(bipolarCplxME(:,:,:,1:2:end-2)),4));
+% [fieldMapOdd,~] = estimateTotalField(double(PhaseDiffOdds),mask,dims(1:3),[1 1 1],algorParam,headerAndExtraData);
 
-headerAndExtraData.te   = te(3)-te(1);
-headerAndExtraData.magn	= double(mean(abs(bipolarCplxME(:,:,:,1:2:end-2)),4));
-[fieldMapOdd,~] = estimateTotalField(double(PhaseDiffOdds),mask,dims(1:3),[1 1 1],algorParam,headerAndExtraData);
+headerAndExtraData.sepia_header.TE 	= te(3)-te(1);
+headerAndExtraData.magnitude        = double(mean(abs(bipolarCplxME(:,:,:,1:2:end-2)),4));
+[fieldMap,~] = estimateTotalField(double(PhaseDiff),mask,dims(1:3),[1 1 1],algorParam,headerAndExtraData);
 
 % [fieldMapEven,~] = estimateTotalField(double(PhaseDiffEvens),double(mean(abs(bipolarCplxME(:,:,:,2:2:end-2)),4)),dims(1:3),[1 1 1],...
 %                         'Unwrap',unwrap,'TE',te(4)-te(2),'unit','radHz','mask',mask);
@@ -88,8 +97,8 @@ headerAndExtraData.magn	= double(mean(abs(bipolarCplxME(:,:,:,1:2:end-2)),4));
 
 
 % the last echo to be taken into account has to be even
-headerAndExtraData.te   = te(1:2);
-headerAndExtraData.magn	= double(mean(abs(bipolarCplxME(:,:,:,1:2:to)),4));
+headerAndExtraData.sepia_header.TE	= te(1:2);
+headerAndExtraData.magnitude        = double(mean(abs(bipolarCplxME(:,:,:,1:2:to)),4));
 [fieldMapOddEven,~] = estimateTotalField(double(PhaseDiffEvensMinusOdds),mask,dims(1:3),[1 1 1],algorParam,headerAndExtraData);
 
 % [fieldMapOddEven,~] = estimateTotalField(double(PhaseDiffEvensMinusOdds),double(mean(abs(bipolarCplxME(:,:,:,1:2:to)),4)),dims(1:3),[1 1 1],...
@@ -101,7 +110,8 @@ headerAndExtraData.magn	= double(mean(abs(bipolarCplxME(:,:,:,1:2:to)),4));
 %                         'Unwrap',unwrap,'TE',te(1:2),'unit','radHz','mask',mask);
 % [fieldMapOddEven, ~, ~, ConfidenceOdd]=T2starAndFieldCalc(abs(OddEven),angle(OddEven),te(1:2));
 
-meanEddycurrent2 = fieldMapOddEven-0.5*(fieldMapOdd+fieldMapEven);
+% meanEddycurrent2 = fieldMapOddEven-0.5*(fieldMapOdd+fieldMapEven);
+meanEddycurrent2 = fieldMapOddEven-fieldMap;
 
 % EddycurrentVariations=angle(...
 %     bsxfun(@times,bsxfun(@times,bipolarCplxME(:,:,:,2:2:end-1) , ...
@@ -123,5 +133,7 @@ bipolarCorr = zeros(dims);
 for echo=1:dims(4)
     bipolarCorr(:,:,:,echo)=bipolarCplxME(:,:,:,echo).*exp(-1i *(-1)^echo * 0.5 * FIT3D);
 end
+
+FIT3D = FIT3D.* mask;
 
 end

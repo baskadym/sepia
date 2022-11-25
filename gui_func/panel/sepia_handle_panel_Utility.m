@@ -22,28 +22,13 @@
 function h = sepia_handle_panel_Utility(hParent,h,position)
 
 % set up method name displayed on GUI
-utilityName = {'Get header info','Get lateral ventricle mask'};
-
-% % set default value
-% defaultThreshold = 0.5;
-% 
-% % define maximum level of options and spacing between options
-% nlevel = 5;
-% spacing = 0.02;
-% height = (1-(nlevel+1)*spacing)/nlevel;
-% button = (height+spacing:height+spacing:(height+spacing)*nlevel) - height;
+utilityName = {'Get header info','Get lateral ventricle mask','Manage Dependency','Convert GE real/imaginary images to phase image (experimental)'};
 
 % Parent handle of phase unwrapping panel
 h.StepsPanel.Utility = uipanel(hParent,'Title','Utility',...
     'position',[position(1) position(2) 0.98 0.60]);
     
-%     % Temporo-spatial unwrapping methods
-%     h.utility.text.utilityMethod = uicontrol('Parent',h.StepsPanel.Utility,...
-%         'Style','text','String','Utility:',...
-%         'units','normalized','position',[0.01 0.8 0.3 0.2],...
-%         'HorizontalAlignment','left',...
-%         'backgroundcolor',get(h.fig,'color'),...
-%         'tooltip','Select utility method');
+%     % Utilities options
     h.Utility.popup.utilityMethod = uicontrol('Parent',h.StepsPanel.Utility,...
         'Style','popup',...
         'String',utilityName,...
@@ -58,6 +43,12 @@ position_child = [0.01 0.05 0.98 0.75];
                                                     h,position_child);
                                                 
     h = sepia_handle_panel_utility_mask_ventricle(h.StepsPanel.Utility,...
+                                                    h,position_child);
+
+    h = sepia_handle_panel_utility_manage_dependency(h.StepsPanel.Utility,...
+                                                    h,position_child);
+                                                
+    h = sepia_handle_panel_utility_convert_realImaginary2phase(h.StepsPanel.Utility,...
                                                     h,position_child);
 
 
@@ -80,10 +71,16 @@ end
 % switch on target panel
 switch method
     case 'Get header info'
-        set(h.Utility.panel.getHeader,         'Visible','on');
+        set(h.Utility.panel.getHeader,          'Visible','on');
         
     case 'Get lateral ventricle mask'
-        set(h.Utility.panel.csfMask,         'Visible','on');
+        set(h.Utility.panel.csfMask,            'Visible','on');
+        
+    case 'Manage Dependency'
+        set(h.Utility.panel.magageDependency,	'Visible','on');
+        
+    case 'Convert GE real/imaginary images to phase image (experimental)'
+        set(h.Utility.panel.realimag2phase,     'Visible','on');
 
     % in the future, add new method here
 end
