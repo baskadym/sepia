@@ -20,8 +20,8 @@ MEDI_HOME = '~/Documents/MATLAB/matlab_scripts/MEDI_toolbox/';
 STISuite_HOME = '~/Documents/MATLAB/matlab_scripts/STISuite_V3.0/STISuite_V3.0/';
 FANSI_HOME = '~/Documents/MATLAB/matlab_scripts/carlos_milovic/FANSI-toolbox-master';
 SEGUE_HOME = '~/Documents/MATLAB/matlab_scripts/anita_karsa/SEGUE_pfiles/SEGUE/';
-MRITOOLS_HOME   = []; %'/path/to/ROMEO/Toolboxes/';
-MRISC_HOME      = []; %'/path/to/MRISusceptibilityCalculationmethods/Toolboxes/';
+MRITOOLS_HOME   = [];
+MRISC_HOME      = '~/Documents/MATLAB/matlab_scripts/MRI_susceptibility_calculation_12072021/MATLAB/'; %'/path/to/MRISusceptibilityCalculationmethods/Toolboxes/';
 ANTS_HOME       = []; %'/path/to/ANTs/bin/';
 
 
